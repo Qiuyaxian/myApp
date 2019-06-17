@@ -81,18 +81,7 @@ myApps.validator.addMethod("phone", checkPhone, "请填写正确的电话号码"
 <form class="" id="addAddress" bindsubmit='formSubmit'>
   <view class='' id="">
     <view class='white p-l-32 p-r-32'>
-      <cell cell-class='justify-start p-t-28 p-b-28 border-bottom' left-class='shrink' right-class='grow'>
-        <view slot='left'>
-          <view class='font-24 line-heigt width-200'>姓名</view>
-        </view>
-        <view slot='right'>
-          <view class='flex items-c'>
-            <view class='font-24 line-heigt'>
-              <input type="text" class="form-input" id="trueName" name="trueName" placeholder="请输入收货人姓名" />
-            </view>
-          </view>
-        </view>
-      </cell>
+      <input type="text" class="form-input" id="trueName" name="trueName" placeholder="请输入收货人姓名" />
     </view>
 
     <view class='p-l-32 p-r-32'>
@@ -106,8 +95,6 @@ myApps.validator.addMethod("phone", checkPhone, "请填写正确的电话号码"
 
 ``` bash
 const myApp = require('./static/libs/myApp/myApp.js');
-
-
 
 Page({
   formSubmit: function (form) {
