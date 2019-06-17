@@ -77,16 +77,17 @@ myApps.validator.addMethod("phone", checkPhone, "请填写正确的电话号码"
 <h3>第三步：页面中使用</h3>
 
 <h4>html代码</h4>
+
 ``` bash
 
-<form class="" id="addAddress" bindsubmit='formSubmit'>
-  <view class='' id="">
-    <view class='white p-l-32 p-r-32'>
+<form class="" id="addAddress" bindsubmit="formSubmit">
+  <view class="" id="">
+    <view class="white p-l-32 p-r-32">
       <input type="text" class="form-input" id="trueName" name="trueName" placeholder="请输入收货人姓名" />
     </view>
 
-    <view class='p-l-32 p-r-32'>
-      <button formType="submit" type='warn' class='m-b-25 submit'>保存</button>
+    <view class="p-l-32 p-r-32">
+      <button formType="submit" type="warn" class="m-b-25 submit">保存</button>
     </view>
   </view>
 </form>
@@ -97,6 +98,7 @@ myApps.validator.addMethod("phone", checkPhone, "请填写正确的电话号码"
 <h4>js代码</h4>
 
 ``` bash
+
 const myApp = require('./myApp.js');
 
 Page({
