@@ -75,7 +75,8 @@ myApps.validator.addMethod("phone", checkPhone, "请填写正确的电话号码"
 ```
 
 <h3>第三步：页面中使用</h3>
-<h4>html:使用</h4>
+
+<h4>html代码</h4>
 ``` bash
 
 <form class="" id="addAddress" bindsubmit='formSubmit'>
@@ -91,10 +92,12 @@ myApps.validator.addMethod("phone", checkPhone, "请填写正确的电话号码"
 </form>
 
 ```
-<h4>js使用</h4>
+
+
+<h4>js代码</h4>
 
 ``` bash
-const myApp = require('./static/libs/myApp/myApp.js');
+const myApp = require('./myApp.js');
 
 Page({
   formSubmit: function (form) {
@@ -104,30 +107,11 @@ Page({
       rules: {
         'trueName': {
           required: true,
-        },
-        'mobile': {
-          required: true,
-          mobile:true
-        },
-        'zipCode': {
-          required: true
-        },
-        'address': {
-          required: true
         }
       },
       messages: {
         'trueName': {
-          required: '请输入收货人姓名'
-        },
-        'mobile': {
-          required: '请输入手机号'
-        },
-        'zipCode':{
-          required: '请输入邮政编码'
-        },
-        'address':{
-          required: '请输入详细地址'
+          required: '请输入姓名'
         }
       },
       submitHandler: function (forms, result, validate) {
