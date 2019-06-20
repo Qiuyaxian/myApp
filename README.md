@@ -2,11 +2,11 @@
 
 <h3>模拟小程序请求之token刷新机制</h3>
 ``` bash
-
 示例：
+
 myApp({
   subscribers: [],
-  onAccessTokenRequst: function() {
+  onAccessTokenRequst: function () {
     // 订阅事件
     this.subscribers.forEach((callback) => {
       callback();
@@ -14,42 +14,42 @@ myApp({
     // 重置事件
     this.subscribers = [];
   },
-  addSubscriber: function(callback) {
+  addSubscriber: function (callback) {
     // 发布事件
     this.subscribers.push(callback)
   },
   isRefreshing: true,
   // 发送请求加载数据
-  request: function(options) {
+  request: function (options) {
     var _this = this;
     return new Promise((resolve, reject) => {
-    // 模拟网络1s请求
-    let timer = setTimeout(() => {
-      console.log('resolve(data) => ', options)
-      resolve(options);
-      if (timer) clearTimeout(timer);
-    }, 1000);
+      // 模拟网络1s请求
+      let timer = setTimeout(() => {
+        console.log('resolve(data) => ', options)
+        resolve(options);
+        if (timer) clearTimeout(timer);
+      }, 1000);
     }).then((response) => {
-    // 检查状态 401 登陆失效
-    if (response.data === 401) {
-      if (this.isRefreshing) {
-        // 防止多次请求token
-        this.refreshTokenRequst();
-      }
-      // 标记为false 防止重复获取token
-      this.isRefreshing = false;
-      // 使用new promise重新包装一层
-      var retryRequest = new Promise((resolve, reject) => {
-        this.addSubscriber(() => {
-          resolve(_this.request({
-            data: 200, 
-            token: sessionStorage.getItem('token')
-          }))
-        })
-      }).catch((error) => {
-        // 向外抛出错误异常
-        return Promise.reject(error);
-      });
+      // 检查状态 401 登陆失效
+      if (response.data === 401) {
+        if (this.isRefreshing) {
+          // 防止多次请求token
+          this.refreshTokenRequst();
+        }
+        // 标记为false 防止重复获取token
+        this.isRefreshing = false;
+        // 使用new promise重新包装一层
+        var retryRequest = new Promise((resolve, reject) => {
+          this.addSubscriber(() => {
+            resolve(_this.request({
+              data: 200,
+              token: sessionStorage.getItem('token')
+            }))
+          })
+        }).catch((error) => {
+          // 向外抛出错误异常
+          return Promise.reject(error);
+        });
         return retryRequest;
       } else {
         return response;
@@ -74,28 +74,28 @@ myApp({
     }, 2000)
   },
   // 类似axios spread
-  spread: function(cb) {
+  spread: function (cb) {
     return function (args) {
       cb.call(null, ...args)
-    } 
+    }
   },
   // 处理前端并发请求
-  all: function(args) {
+  all: function (args) {
     return Promise.all(args);
   },
   // 设置缓存
   storage: {
-    set: function(key, value) {
+    set: function (key, value) {
       sessionStorage.setItem(key, value)
     },
-    get: function(key) {
+    get: function (key) {
       return sessionStorage.getItem(key)
     },
-    clear: function() {
+    clear: function () {
       sessionStorage.clear();
     }
   },
-  onLoad() {
+  onLoad () {
     // 判断是否存在token
     if (this.storage.get('token')) {
       console.log('token => 存在');
@@ -104,26 +104,26 @@ myApp({
       console.log('token => 不存在');
       // this.storage.clear();
       new Promise((resolve, reject) => {
-        console.log('token => 开始获取token');  
+        console.log('token => 开始获取token');
         setTimeout(() => {
           this.storage.set('token', 1);
           resolve();
         }, 1000)
       }).then(() => {
-        this.initLoading(); 
+        this.initLoading();
       });
     }
   },
-  onReady() {
+  onReady () {
     console.log('onReady')
   },
-  initLoading() {
-        // 网络请求
-    var data1 = this.request({ 
+  initLoading () {
+    // 网络请求
+    var data1 = this.request({
       data: 401,
       token: this.storage.get('token')
     })
-    var data2 = this.request({ 
+    var data2 = this.request({
       data: 401,
       token: this.storage.get('token')
     })
@@ -132,10 +132,9 @@ myApp({
       console.log('b => ', b);
     })).catch(err => {
       console.log('catch => ', err)
-    })  
+    })
   }
 })
-
 ```
 
 <h3>表单用法说明</h3>
