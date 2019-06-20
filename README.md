@@ -25,7 +25,7 @@ myApp({
     return new Promise((resolve, reject) => {
       // 模拟网络1s请求
       let timer = setTimeout(() => {
-        console.log('resolve(data) => ', options)
+        console.log("resolve(data) => ", options)
         resolve(options);
         if (timer) clearTimeout(timer);
       }, 1000);
@@ -43,7 +43,7 @@ myApp({
           this.addSubscriber(() => {
             resolve(_this.request({
               data: 200,
-              token: sessionStorage.getItem('token')
+              token: sessionStorage.getItem("token")
             }))
           })
         }).catch((error) => {
@@ -61,12 +61,12 @@ myApp({
   },
   // 刷新token
   refreshTokenRequst: function () {
-    console.log('refreshTokenRequst => 刷新token')
+    console.log("refreshTokenRequst => 刷新token")
     // 模拟2s请求token
     let timer = setTimeout(() => {
-      console.log('token => 获取到token')
+      console.log("token => 获取到token")
       // 设置token
-      this.storage.set('token', (+this.storage.get('token')) + 1);
+      this.storage.set("token", (+this.storage.get("token")) + 1);
       // 释放请求
       this.onAccessTokenRequst();
       this.isRefreshing = true;
@@ -97,16 +97,16 @@ myApp({
   },
   onLoad () {
     // 判断是否存在token
-    if (this.storage.get('token')) {
-      console.log('token => 存在');
+    if (this.storage.get("token")) {
+      console.log("token => 存在");
       this.initLoading();
     } else {
-      console.log('token => 不存在');
+      console.log("token => 不存在");
       // this.storage.clear();
       new Promise((resolve, reject) => {
-        console.log('token => 开始获取token');
+        console.log("token => 开始获取token");
         setTimeout(() => {
-          this.storage.set('token', 1);
+          this.storage.set("token", 1);
           resolve();
         }, 1000)
       }).then(() => {
@@ -115,23 +115,23 @@ myApp({
     }
   },
   onReady () {
-    console.log('onReady')
+    console.log("onReady")
   },
   initLoading () {
     // 网络请求
     var data1 = this.request({
       data: 401,
-      token: this.storage.get('token')
+      token: this.storage.get("token")
     })
     var data2 = this.request({
       data: 401,
-      token: this.storage.get('token')
+      token: this.storage.get("token")
     })
     this.all([data1, data2]).then(this.spread((a, b) => {
-      console.log('a => ', a);
-      console.log('b => ', b);
+      console.log("a => ", a);
+      console.log("b => ", b);
     })).catch(err => {
-      console.log('catch => ', err)
+      console.log("catch => ", err)
     })
   }
 })
