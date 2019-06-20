@@ -1,10 +1,8 @@
-# myApp
-
-<h1>模拟小程序Page</h1>
-
+# 模拟小程序Page
 
 <h3>模拟小程序请求之token刷新机制</h3>
 ``` bash
+示例：
 myApp({
   subscribers: [],
   onAccessTokenRequst: function() {
