@@ -7,38 +7,38 @@
 myApp({
   subscribers: [],
   onAccessTokenRequst: function () {
-    // 订阅事件
+    /* 订阅事件 */
     this.subscribers.forEach((callback) => {
       callback();
     });
-    // 重置事件
+    /* 重置事件 */
     this.subscribers = [];
   },
   addSubscriber: function (callback) {
-    // 发布事件
+    /* 发布事件 */
     this.subscribers.push(callback)
   },
   isRefreshing: true,
-  // 发送请求加载数据
+  /* 发送请求加载数据 */
   request: function (options) {
     var _this = this;
     return new Promise((resolve, reject) => {
-      // 模拟网络1s请求
+      /* 模拟网络1s请求 */
       let timer = setTimeout(() => {
         console.log("resolve(data) => ", options)
         resolve(options);
         if (timer) clearTimeout(timer);
       }, 1000);
     }).then((response) => {
-      // 检查状态 401 登陆失效
+      /* 检查状态 401 登陆失效 */
       if (response.data === 401) {
         if (this.isRefreshing) {
-          // 防止多次请求token
+          /* 防止多次请求token */
           this.refreshTokenRequst();
         }
-        // 标记为false 防止重复获取token
+        /* 标记为false 防止重复获取token */
         this.isRefreshing = false;
-        // 使用new promise重新包装一层
+        /* 使用new promise重新包装一层 */
         var retryRequest = new Promise((resolve, reject) => {
           this.addSubscriber(() => {
             resolve(_this.request({
@@ -47,7 +47,7 @@ myApp({
             }))
           })
         }).catch((error) => {
-          // 向外抛出错误异常
+          /* 向外抛出错误异常 */
           return Promise.reject(error);
         });
         return retryRequest;
@@ -55,35 +55,35 @@ myApp({
         return response;
       }
     }).catch((error) => {
-      // 向外抛出错误异常
+      /* 向外抛出错误异常 */
       return Promise.reject(error);
     });
   },
-  // 刷新token
+  /* 刷新token */
   refreshTokenRequst: function () {
     console.log("refreshTokenRequst => 刷新token")
-    // 模拟2s请求token
+    /* 模拟2s请求token */
     let timer = setTimeout(() => {
       console.log("token => 获取到token")
-      // 设置token
+      /* 设置token */
       this.storage.set("token", (+this.storage.get("token")) + 1);
-      // 释放请求
+      /* 释放请求 */
       this.onAccessTokenRequst();
       this.isRefreshing = true;
       if (timer) clearTimeout(timer);
     }, 2000)
   },
-  // 类似axios spread
+  /* 类似axios spread */
   spread: function (cb) {
     return function (args) {
       cb.call(null, ...args)
     }
   },
-  // 处理前端并发请求
+  /* 处理前端并发请求 */
   all: function (args) {
     return Promise.all(args);
   },
-  // 设置缓存
+  /* 设置缓存 */
   storage: {
     set: function (key, value) {
       sessionStorage.setItem(key, value)
@@ -96,13 +96,13 @@ myApp({
     }
   },
   onLoad () {
-    // 判断是否存在token
+    /*判断是否存在token */
     if (this.storage.get("token")) {
       console.log("token => 存在");
       this.initLoading();
     } else {
       console.log("token => 不存在");
-      // this.storage.clear();
+      this.storage.clear();
       new Promise((resolve, reject) => {
         console.log("token => 开始获取token");
         setTimeout(() => {
@@ -118,7 +118,7 @@ myApp({
     console.log("onReady")
   },
   initLoading () {
-    // 网络请求
+    /* 网络请求 */
     var data1 = this.request({
       data: 401,
       token: this.storage.get("token")
