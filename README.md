@@ -166,16 +166,16 @@ let validate = myApp.validate({
   messages: {}, // 错误消息集合
 })
 
-//验证所有字段的规则，返回验证是否通过。 retrun true/false
+//验证所有字段的规则，返回验证是否通过 retrun true/false
 validate.checkForm()
 
 //返回验证是否通过 return true/false
 validate.valid()
 
 //返回错误信息的个数 return number
-validate.size = ()
+validate.size()
 
-// 返回错误消息集合
+// 返回错误消息集合 return List
 validate.validationErrors() 
 
 ```
