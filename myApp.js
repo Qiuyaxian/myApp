@@ -2,7 +2,7 @@ import Validate from './validate.js';
 
 var myApp = (function () {
   var data = {};
-  function myApp() {
+  function myApp () {
     //存储arguments
     var myApp = {};
     var args = arguments[0];
@@ -16,7 +16,7 @@ var myApp = (function () {
     /**
      * [App 基础函数]
      */
-    function App() {
+    function App () {
       //挂载数据
       this.data = extend({}, args.data);
       //设置数据
@@ -25,7 +25,7 @@ var myApp = (function () {
           this.data = extend(data, obj);
           if (callback && isFunction(callback)) callback();
         } else {
-          
+
         }
       }
       //基础判断数据类型
@@ -44,7 +44,7 @@ var myApp = (function () {
      * @param  {Function} fn [description]
      * @return {Boolean}     [description]
      */
-    function isFunction(fn) {
+    function isFunction (fn) {
       return typeof (fn) == 'function' && Object.prototype.toString.call(fn) === '[object Function]';
     }
     /**
@@ -52,7 +52,7 @@ var myApp = (function () {
      * @param  {[type]}  array [description]
      * @return {Boolean}       [description]
      */
-    function isArray(array) {
+    function isArray (array) {
       return typeof (array) == 'object' && Object.prototype.toString.call(array) === '[object Array]';
     }
     /**
@@ -60,7 +60,7 @@ var myApp = (function () {
      * @param  {[type]}  obj [description]
      * @return {Boolean}     [description]
      */
-    function isNumber(obj) {
+    function isNumber (obj) {
       return typeof (obj) == 'number' && Object.prototype.toString.call(obj) === '[object Number]';
     }
     /**
@@ -68,7 +68,7 @@ var myApp = (function () {
      * @param  {[type]}  obj [description]
      * @return {Boolean}     [description]
      */
-    function isObject(obj) {
+    function isObject (obj) {
       return typeof (obj) == 'object' && Object.prototype.toString.call(obj) === '[object Object]';
     }
     /**
@@ -76,7 +76,7 @@ var myApp = (function () {
      * @param  {[type]}  str [description]
      * @return {Boolean}     [description]
      */
-    function isString(str) {
+    function isString (str) {
       return typeof (str) == 'string' && Object.prototype.toString.call(str) === '[object String]';
     }
     /**
@@ -84,7 +84,7 @@ var myApp = (function () {
      * @param  {[type]}  arg [description]
      * @return {Boolean}     [description]
      */
-    function isNull(arg) {
+    function isNull (arg) {
       return typeof (arg) == 'object' && Object.prototype.toString.call(arg) === '[object Null]';
     }
     /**
@@ -92,7 +92,7 @@ var myApp = (function () {
      * @param  {[type]} args [description]
      * @return {[type]}      [description]
      */
-    function capture(args) {
+    function capture (args) {
       try {
         if (args && isFunction(args)) args();
       } catch (e) {
@@ -104,7 +104,7 @@ var myApp = (function () {
      * @param  {[type]} text [description]
      * @return {[type]}      [description]
      */
-    function throwError(text) {
+    function throwError (text) {
       if (text) throw new Error(text);
       else throw new Error('this is empty');
     }
@@ -114,13 +114,13 @@ var myApp = (function () {
      * @param  {[type]} fun [description]
      * @return {[type]}     [description]
      */
-    function prop(obj, fun) {
+    function prop (obj, fun) {
       for (var p in obj) {
         obj.hasOwnProperty(p) && fun(p);
       }
     }
     //扩展函数
-    function extend(des, src) {
+    function extend (des, src) {
       prop(src, function (p) {
         if (src[p]) des[p] = src[p];
       });
@@ -138,24 +138,41 @@ var myApps = myApp({
    * @type {[type]}
    */
   debug: false,
-  /**
-   * [onLoad 预加载]
-   * @return {[type]} [description]
-   */
-  onLoad: function () {
-    this.console('onLoad')
-  },
+
   /**
    * [data 数据挂载]
    * @type {Object}
    */
   data: {
-    userInfo:null,
-    addValidatorMethod:{},
-    initLoading:false,
+    userInfo: null,
+    addValidatorMethod: {},
+    initLoading: false,
     spread: null,
     lock: false,
-    timer:null //定时器管理
+    timer: null //定时器管理
+  },
+  /**
+   * [onLoad 预加载]
+   * @return {[type]} [description]
+   */
+  onLoad () {
+    // 判断是否存在token
+    if (this.storage.get('token')) {
+      console.log('token => 存在');
+      this.initLoading();
+    } else {
+      console.log('token => 不存在');
+      // this.storage.clear();
+      new Promise((resolve, reject) => {
+        console.log('token => 开始获取token');
+        setTimeout(() => {
+          this.storage.set('token', 1);
+          resolve();
+        }, 1000)
+      }).then(() => {
+        this.initLoading();
+      });
+    }
   },
   /**
    * [onReady 加载完成]
@@ -164,13 +181,125 @@ var myApps = myApp({
   onReady: function () {
     this.console('onReady')
   },
-  
+  subscribers: [],
+  onAccessTokenRequst: function () {
+    // 订阅事件
+    this.subscribers.forEach((callback) => {
+      callback();
+    });
+    // 重置事件列表
+    this.subscribers = [];
+  },
+  addSubscriber: function (callback) {
+    // 发布事件
+    this.subscribers.push(callback)
+  },
+  isRefreshing: true,
+  // 发送请求加载数据
+  request: function (options) {
+    var _this = this;
+    return new Promise((resolve, reject) => {
+      // 模拟网络1s请求
+      let timer = setTimeout(() => {
+        console.log('resolve(data) => ', options)
+        resolve(options);
+        if (timer) clearTimeout(timer);
+      }, 1000);
+    }).then((response) => {
+      // 检查状态 401 登陆失效
+      if (response.data === 401) {
+        if (this.isRefreshing) {
+          // 防止多次请求token
+          this.refreshTokenRequst();
+        }
+        // 标记为false 防止重复获取token
+        this.isRefreshing = false;
+        // 使用new promise重新包装一层
+        var retryRequest = new Promise((resolve, reject) => {
+          this.addSubscriber(() => {
+            resolve(_this.request({
+              data: 200,
+              token: sessionStorage.getItem('token')
+            }))
+          })
+        }).catch((error) => {
+          // 向外抛出错误异常
+          return Promise.reject(error);
+        });
+        return retryRequest;
+      } else {
+        return response;
+      }
+    }).catch((error) => {
+      // 向外抛出错误异常
+      return Promise.reject(error);
+    });
+  },
+  // 刷新token
+  refreshTokenRequst: function () {
+    console.log('refreshTokenRequst => 刷新token')
+    // 模拟2s请求token
+    let timer = setTimeout(() => {
+      console.log('token => 获取到token')
+      // 设置token
+      this.storage.set('token', (+this.storage.get('token')) + 1);
+      // 释放请求
+      this.onAccessTokenRequst();
+      this.isRefreshing = true;
+      if (timer) clearTimeout(timer);
+    }, 2000)
+  },
+  // 类似axios spread
+  spread: function (cb) {
+    return function (args) {
+      cb.call(null, ...args)
+    }
+  },
+  // 处理前端并发请求
+  all: function (args) {
+    return Promise.all(args);
+  },
+  // 设置缓存
+  storage: {
+    set: function (key, value) {
+      sessionStorage.setItem(key, value)
+    },
+    get: function (key) {
+      return sessionStorage.getItem(key)
+    },
+    clear: function () {
+      sessionStorage.clear();
+    }
+  },
+  // 模拟加载
+  initLoading () {
+    // 网络请求
+    var data1 = this.request({
+      data: 401,
+      token: this.storage.get('token')
+    })
+    var data2 = this.request({
+      data: 401,
+      token: this.storage.get('token')
+    })
+    this.all([data1, data2]).then(this.spread((a, b) => {
+      console.log('a => ', a);
+      console.log('b => ', b);
+    })).catch(err => {
+      console.log('catch => ', err)
+    })
+  }
+
+
+
+
+
   /**
    * [loading js调用加载API]
    * @param  {[type]} option [description]
    * @return {[type]}        [description]
    */
-  
+
   /**
    * [console 控制台输出，用于调试]
    * @return {[type]} [description]
@@ -196,19 +325,19 @@ var myApps = myApp({
  * @param  {[type]}   [description]
  * @return {[type]}   [description]
  */
-myApps.extend(myApps,{
+myApps.extend(myApps, {
   /**
    * [stringify 转为字符串]
    * @param  {[type]} obj [description]
    * @return {[type]}     [description]
    */
-  stringify:function(obj){
+  stringify: function (obj) {
     let result = null;
-    try{
-      result = JSON.stringify(obj);  
-    }catch(e){
+    try {
+      result = JSON.stringify(obj);
+    } catch (e) {
       throw new Error(e);
-    } 
+    }
     return result;
   },
   /**
@@ -216,11 +345,11 @@ myApps.extend(myApps,{
    * @param  {[type]} str [description]
    * @return {[type]}     [description]
    */
-  parse: function (str){
+  parse: function (str) {
     let result = null;
-    try{
+    try {
       result = JSON.parse(str)
-    }catch(e){
+    } catch (e) {
       throw new Error(e);
     }
     return result;
@@ -230,7 +359,7 @@ myApps.extend(myApps,{
    * @param  {[type]} val [description]
    * @return {[type]}     [description]
    */
-  copy(val){
+  copy (val) {
     return JSON.parse(JSON.stringify(val));
   }
 });
@@ -239,7 +368,7 @@ myApps.extend(myApps,{
  * @param  {[type]}   [description]
  * @return {[type]}   [description]
  */
-myApps.extend(myApps,{
+myApps.extend(myApps, {
   /**
    * [validate 表单校验方法]
    * @param  {[type]} option [description]
@@ -268,7 +397,7 @@ myApps.extend(myApps,{
     //添加信息
     for (let key in validatorMethod) {
       if (key && opt.rules[key] && validatorMethod[key].method) {
-        _validate.addMethod(validatorMethod[key].name, function(value, param){
+        _validate.addMethod(validatorMethod[key].name, function (value, param) {
           return validatorMethod[key].method.call(_validate, value, param);
         }, validatorMethod[key].message);
       }
@@ -299,7 +428,7 @@ myApps.extend(myApps,{
       let result = _validate.validationErrors();
       //错误处理
       if (opt.errorHandler && this.isFunction(opt.errorHandler) && !_checkForm) {
-         opt.errorHandler && opt.errorHandler(result);
+        opt.errorHandler && opt.errorHandler(result);
       }
       if (_checkForm) {
         //参数 result结果集，_validate，表单opt.form
@@ -308,7 +437,7 @@ myApps.extend(myApps,{
     } else {
       return _validator;
     }
-  }, 
+  },
   /**
    * [validator 表单校验对象]
    * @type {Object}
@@ -317,7 +446,7 @@ myApps.extend(myApps,{
     //添加自定义验证方法。
     addMethod: function (name, method, message) {
       let validatorMethod = myApps.data.addValidatorMethod,
-          _validator = {};
+        _validator = {};
       if (name && message && method && myApps.isFunction(method)) {
         _validator['name'] = name;
         _validator['method'] = method;
